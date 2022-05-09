@@ -16,6 +16,7 @@ dependencies:
       kubeconfig_path: "{{ item.k8s.config_file }}"
       kubecontext: "{{ item.k8s.context }}"
     when: item.cloud_provider == 'aws'
+    
   - role: "helm"
     vars:
       helm:

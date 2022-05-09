@@ -1,0 +1,237 @@
+##############################################################################################
+#  Copyright Accenture. All Rights Reserved.
+#
+#  SPDX-License-Identifier: Apache-2.0
+##############################################################################################
+
+---
+# yaml-language-server: $schema=../../../../platforms/network-schema.json
+# This is a sample configuration file for setting up initial Fabric network with 1 RAFT Orderer and 5 Nodes.
+network:
+  # Network level configuration specifies the attributes required for each organization
+  # to join an existing network.
+  type: fabric
+  version: 2.2.2                 # currently tested 1.4.8 and 2.2.2
+
+  frontend: enabled #Flag for frontend to enabled for nodes/peers
+
+  #Environment section for Kubernetes setup
+  env:
+    type: "dev"              # tag for the environment. Important to run multiple flux on single cluster
+    proxy: haproxy                  # values can be 'haproxy' or 'ambassador'
+    ambassadorPorts:                # Any additional Ambassador ports can be given here, this is valid only if proxy='ambassador'
+      portRange:              # For a range of ports 
+        from: 15010 
+        to: 15020
+    # ports: 15020,15021      # For specific ports
+    loadBalancerSourceRanges: # (Optional) Default value is '0.0.0.0/0', this value can be changed to any other IP adres or list (comma-separated without spaces) of IP adresses, this is valid only if proxy='ambassador'
+    retry_count: 3                 # Retry count for the checks
+    external_dns: enabled           # Should be enabled if using external-dns for automatic route configuration
+    annotations:              # Additional annotations that can be used for some pods (ca, ca-tools, orderer and peer nodes)
+      service: 
+       - example1: example2
+      deployment: {} 
+      pvc: {}
+  # For providing Custom Templates to generate configtx.yaml
+  configtx:
+    custom: false               # true : when custom tpl(s) are to be provided | false : when the default tpl(s) are to be used
+    folder_path: /absolute/path/to/folder             # path to folder where the tpl(s) are placed e.g. /home/bevel/build/configtx_tpl/
+
+  # Docker registry details where images are stored. This will be used to create k8s secrets
+  # Please ensure all required images are built and stored in this registry.
+  # Do not check-in docker_password.
+  docker:
+    url: "index.docker.io/hyperledgerlabs"
+    username: "amit2019dock"
+    password: "myDocker@#123"
+  
+  # Remote connection information for orderer (will be blank or removed for orderer hosting organization)
+  # For RAFT consensus, have odd number (2n+1) of orderers for consensus agreement to have a majority.
+  orderers:
+    - orderer:
+      type: orderer
+      name: orderer1
+      org_name: tanladigitalpvt               #org_name should match one organization definition below in organizations: key            
+      uri: orderer1.hlford.tanla.com:8443   # Can be external or internal URI for orderer which should be reachable by all peers
+      certificate: /home/ubuntu/hlf-ord-certs/orderer1.crt           # Ensure that the directory exists
+    - orderer:
+      type: orderer
+      name: orderer2
+      org_name: tanladigitalpvt               #org_name should match one organization definition below in organizations: key            
+      uri: orderer2.hlford.tanla.com:8443   # Can be external or internal URI for orderer which should be reachable by all peers
+      certificate: /home/ubuntu/hlf-ord-certs/orderer2.crt           # Ensure that the directory exists
+    - orderer:
+      type: orderer
+      name: orderer3
+      org_name: tanladigitalpvt               #org_name should match one organization definition below in organizations: key            
+      uri: orderer3.hlford.tanla.com:8443   # Can be external or internal URI for orderer which should be reachable by all peers
+      certificate: /home/ubuntu/hlf-ord-certs/orderer3.crt           # Ensure that the directory exists
+  
+  # The channels defined for a network with participating peers in each channel
+  channels:
+  - channel:
+    consortium: tanlaconsortium
+    channel_name: dev-nld-tanla
+    orderer: 
+      name: tanladigitalpvt
+    participants:
+    - organization:
+      name: tanlaplatformsltd
+      type: creator       # creator organization will create the channel and instantiate chaincode, in addition to joining the channel and install chaincode
+      org_status: new
+      peers:
+      - peer:
+        name: peer0
+        gossipAddress: peer0.hlftan.tanla.com:8443  # External or internal URI of the gossip peer
+        peerAddress: peer0.hlftan.tanla.com:8443 # External URI of the peer
+      - peer:
+        name: peer1
+        gossipAddress: peer1.hlftan.tanla.com:8443  # External or internal URI of the gossip peer
+        peerAddress: peer1.hlftan.tanla.com:8443 # External URI of the peer
+      ordererAddress: orderer1.hlford.tanla.com:8443             # External or internal URI of the orderer
+    - organization:      
+      name: tanlatelco
+      type: joiner        # joiner organization will only join the channel and install chaincode
+      org_status: new
+      peers:
+      - peer:
+        name: peer0
+        gossipAddress: peer0.hlftelco.tanla.com:8443
+        peerAddress: peer0.hlftelco.tanla.com:8443 # External URI of the peer
+      - peer:
+        name: peer1
+        gossipAddress: peer1.hlftelco.tanla.com:8443
+        peerAddress: peer1.hlftelco.tanla.com:8443 # External URI of the peer
+      ordererAddress: orderer1.hlford.tanla.com:8443
+    - organization:
+      name: tanlaenterprise
+      type: joiner
+      org_status: new
+      peers:
+      - peer:
+        name: peer0
+        gossipAddress: peer0.hlfent.tanla.com:8443
+        peerAddress: peer0.hlfent.tanla.com:8443
+      - peer:
+        name: peer1
+        gossipAddress: peer1.hlfent.tanla.com:8443
+        peerAddress: peer1.hlfent.tanla.com:8443
+      ordererAddress: orderer1.hlford.tanla.com:8443
+    endorsers:
+    # Only one peer per org required for endorsement
+    - organization:
+      name: tanlaplatformsltd
+      peers:
+      - peer:
+        name: peer0
+        corepeerAddress: peer0.hlftan.tanla.com:8443
+        certificate: "/home/ubuntu/hlf-tan-certs/ca.crt" # certificate path for peer
+    - organization:
+      name: tanlatelco
+      peers:
+      - peer:
+        name: peer0
+        corepeerAddress: peer0.hlftelco.tanla.com:8443
+        certificate: "/home/ubuntu/hlf-telco-certs/ca.crt" # certificate path for peer
+    - organization:
+      name: tanlaenterprise
+      peers:
+      - peer:
+        name: peer0
+        corepeerAddress: peer0.hlfent.tanla.com:8443
+        certificate: "/home/ubuntu/hlf-ent-certs/ca.crt" # certificate path for peer
+
+    genesis:
+      name: OrdererGenesis  
+
+  # Allows specification of one or many organizations that will be connecting to a network.
+  # If an organization is also hosting the root of the network (e.g. doorman, membership service, etc),
+  # then these services should be listed in this section as well.
+  organizations:
+
+    # Specification for the 1st organization. Each organization maps to a VPC and a separate k8s cluster
+    - organization:
+      name: tanladigitalpvt
+      country: India
+      state: TS
+      location: Hyderabad
+      subject: "O=Orderer,L=51.50/-0.13/India,C=INR"
+      type: orderer
+      external_url_suffix: hlford.tanla.com
+      org_status: new
+      fabric_console: enabled               # To deploy Fabric console for this organization
+      ca_data:
+        url: ca.tanladigitalpvt.hlford.tanla.com:8443
+        certificate: file/server.crt        # This has not been implemented in 0.2.0.0
+  
+      cloud_provider: azure   # Options: aws, azure, gcp, digitalocean, minikube
+      aws:
+        access_key: "aws_access_key"        # AWS Access key, only used when cloud_provider=aws
+        secret_key: "aws_secret_key"        # AWS Secret key, only used when cloud_provider=aws
+  
+      # Kubernetes cluster deployment variables. The config file path and name has to be provided in case
+      # the cluster has already been created.
+      k8s:
+        region: "southindia"
+        context: "TBS-TAN-NLD-SI-HLF-Ord-AKS-01-admin"
+        config_file: "/home/bevel/config"
+
+      # Hashicorp Vault server address and root-token. Vault should be unsealed.
+      # Do not check-in root_token
+      vault:
+        url: "http://104.211.212.80:8200/"
+        root_token: "s.aDR579D7HXu3QNYLnGgonyLP"
+        secret_path: "kv"
+      # Git Repo details which will be used by GitOps/Flux.
+      # Do not check-in git_access_token
+      gitops:
+        git_protocol: "https" # Option for git over https or ssh
+        git_url: "https://github.com/amitkd-github/bevel.git"         # Gitops https or ssh url for flux value files 
+        branch: "main"           # Git branch where release is being made
+        release_dir: "platforms/hyperledger-fabric/releases/dev" # Relative Path in the Git repo for flux sync per environment. 
+        chart_source: "platforms/hyperledger-fabric/charts"     # Relative Path where the Helm charts are stored in Git repo
+        git_repo: "github.com/amitkd-github/bevel.git"   # Gitops git repository URL for git push  (without https://)
+        username: "amitkd-github"          # Git Service user who has rights to check-in in all branches
+        password: "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"          # Git Server user password/token (Optional for ssh; Required for https)
+        email: "amitkd.niit@gmail.com"                # Email to use in git config
+        private_key: "/home/ubuntu/gitops"          # Path to private key file which has write-access to the git repo (Optional for https; Required for ssh)
+     
+      # Services maps to the pods that will be deployed on the k8s cluster
+      # This sample is an orderer service and includes a zk-kafka consensus
+      services:
+        ca:
+          name: ca
+          subject: "/C=GB/ST=London/L=London/O=Orderer/CN=ca.tanladigitalpvt.hlford.tanla.com"
+          type: ca
+          grpc:
+            port: 7054
+        
+        consensus:
+          name: raft
+          type: broker        #This field is not consumed for raft consensus
+          replicas: 4         #This field is not consumed for raft consensus
+          grpc:
+            port: 9092        #This field is not consumed for raft consensus
+                
+        orderers:
+        # This sample has multiple orderers as an example.
+        # You can use a single orderer for most production implementations.
+        # For RAFT consensus, have odd number (2n+1) of orderers for consensus agreement to have a majority.
+        - orderer:
+          name: orderer1
+          type: orderer
+          consensus: raft
+          grpc:
+            port: 7050
+        - orderer:
+          name: orderer2
+          type: orderer
+          consensus: raft
+          grpc:
+            port: 7050
+        - orderer:
+          name: orderer3
+          type: orderer
+          consensus: raft
+          grpc:
+            port: 7050     

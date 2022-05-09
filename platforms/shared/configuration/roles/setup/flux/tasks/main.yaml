@@ -6,7 +6,7 @@
 
 ---
 - name: Checking if the namespace flux-{{ network.env.type }} already exists
-  k8s_info:
+  kubernetes.core.k8s_info:
     kind: "Namespace"
     name: "flux-{{ network.env.type }}"
     kubeconfig: "{{ kubeconfig_path }}"
@@ -20,7 +20,7 @@
   when: result.resources|length == 0
   
 - name: Check if Flux is running
-  k8s_info:
+  kubernetes.core.k8s_info:
     kind: Pod
     namespace: flux-{{ network.env.type }}
     kubeconfig: "{{ kubeconfig_path }}"

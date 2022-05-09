@@ -45,3 +45,4 @@
       kubeconfig: "{{ kubeconfig_path }}"
       context: "{{ kubecontext }}"
     register: pods_default
+    ignore_errors: no
