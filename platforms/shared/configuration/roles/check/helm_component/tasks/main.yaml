@@ -9,7 +9,7 @@
 # This task will try for a maximum of 10 times with an interval of
 # 60 seconds between each try
 - name: 'Wait for {{ component_type }} {{ component_name }} in {{ namespace }}'
-  k8s_info:
+  kubernetes.core.k8s_info:
     kind: "Pod"
     namespace: "{{ namespace }}"
     kubeconfig: "{{ kubernetes.config_file }}"
@@ -19,7 +19,7 @@
     field_selectors:
       - status.phase=Succeeded
   register: component_data
-  retries: "{{ network.env.retry_count}}"
+  retries: "{{ network.env.retry_count }}"
   delay: 15
   until: component_data.resources|length > 0
   when: component_type == "Job"
