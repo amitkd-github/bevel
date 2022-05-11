@@ -8,7 +8,7 @@ metadata:
 spec:
   releaseName: tanladigitalpvt-vaultkubenertes-job
   chart:
-    git: https://github.com/amitkd-github/bevel.git
+    git: git@github.com:amitkd-github/bevel.git
     ref: main
     path: platforms/hyperledger-fabric/charts/vault_kubernetes
   values:
