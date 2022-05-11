@@ -45,7 +45,7 @@
 
 # Check if Docker credentials exist already
 - name: Check docker cred exists
-  k8s_info:
+  kubernetes.core.k8s_info:
     kind: Secret
     namespace: "{{ component_name }}"
     name: "regcred"
@@ -56,7 +56,7 @@
 
 # Check if Git credentials exist already
 - name: Check git https cred exists
-  k8s_info:
+  kubernetes.core.k8s_info:
     kind: Secret
     namespace: "{{ component_name }}"
     name: "git-https-credentials"
