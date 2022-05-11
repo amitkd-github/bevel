@@ -55,7 +55,7 @@ Ensure that the `network.yaml` is edited properly and saved. Follow the guidance
 ### Step 2
 To deploy everything from scratch, be run by the following command from the root of the project. 
 ```
-ansible-playbook platforms/shared/configuration/site.yaml -e "@./platforms/hyperledger-fabric/configuration/network.yaml"
+ansible-playbook platforms/shared/configuration/site.yaml -e "@./build/network.yaml"
 ```
 The [site.yaml](./site.yaml) is the master playbook which does basic environment setup, kubernetes environment setup and the calls platform specific deployment playbooks.
 
