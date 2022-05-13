@@ -18,7 +18,7 @@
   tasks:
   # Assert Flux is installed on Kubernetes
   - name: Check Flux on Kubernetes clusters
-    k8s_info:
+    kubernetes.core.k8s_info:
       kind: Pod
       namespace: flux-{{ network.env.type }}
       kubeconfig: "{{ kubeconfig_path }}"
@@ -33,7 +33,7 @@
     assert:
       that: flux_service.resources|length == 1
   - name: Check Haproxy on Kubernetes clusters
-    k8s_info:
+    kubernetes.core.k8s_info:
       kind: Pod
       namespace: "ingress-controller"
       kubeconfig: "{{ kubeconfig_path }}"
