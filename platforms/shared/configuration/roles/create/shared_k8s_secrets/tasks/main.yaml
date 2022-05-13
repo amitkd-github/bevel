@@ -11,7 +11,7 @@
 ############################################################################################
 # Check if root token secret exist of every organization in their namespace
 - name: Check if root token exists in the namespace
-  k8s_info:
+  kubernetes.core.k8s_info:
     kind: Secret
     namespace: "{{ namespace }}"
     name: "roottoken"
@@ -23,7 +23,7 @@
 # ############################################################################################
 # # This task put root token of every organization in their namespace
 - name: Put root token of every organization
-  k8s:
+  kubernetes.core.k8s:
     definition:
       apiVersion: v1
       kind: Secret
@@ -63,7 +63,7 @@
 #####################################################################################################################
 # This task creates the docker pull credentials for image registry
 - name: Create the docker pull credentials
-  k8s:
+  kubernetes.core.k8s:
     definition:
       apiVersion: v1
       kind: Secret
