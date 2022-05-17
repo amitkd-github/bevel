@@ -22,10 +22,10 @@ spec:
     vault:
       reviewer_service: vault-reviewer
       role: vault-role
-      address: http://104.211.212.80:8200/
+      address: http://20.219.107.238:8200/
       authpath: devtanladigitalpvt-net-auth
       policy: vault-crypto-orderer-tanladigitalpvt-net-ro
-      secret_path: kv
+      secret_path: secretsv2
       serviceaccountname: vault-auth
       imagesecretname: regcred
     
