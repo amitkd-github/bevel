@@ -105,7 +105,7 @@
 
 # Remove default selfsigned ambassador tls if already exists
 - name: Remove Ambassador cred if exists
-  k8s:
+  kubernetes.core.k8s:
     kind: Secret
     namespace: default
     state: absent
